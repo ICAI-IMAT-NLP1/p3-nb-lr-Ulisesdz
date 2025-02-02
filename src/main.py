@@ -1,7 +1,7 @@
-from data_processing import read_sentiment_examples, build_vocab, bag_of_words
-from naive_bayes import NaiveBayes
-from logistic_regression import LogisticRegression
-from utils import evaluate_classification
+from src.data_processing import read_sentiment_examples, build_vocab, bag_of_words
+from src.naive_bayes import NaiveBayes
+from src.logistic_regression import LogisticRegression
+from src.utils import evaluate_classification
 import torch
 
 
@@ -19,6 +19,8 @@ def main():
     train_labels = torch.tensor(
         [ex.label for ex in train_examples], dtype=torch.float32
     )
+    print(train_features)
+    print(train_labels)
 
     print("Training Naive Bayes model...")
     # Train Naive Bayes model
@@ -28,7 +30,7 @@ def main():
     # Train Logistic Regression model
     print("Training Logistic Regression model...")
     lr_model = LogisticRegression(random_state=42)
-    lr_model.fit(train_features, train_labels, learning_rate=0.1, epochs=100)
+    lr_model.fit(train_features, train_labels, learning_rate=0.01, epochs=100)
 
     # Load test data
     test_examples = read_sentiment_examples("data/test.txt")
@@ -36,12 +38,17 @@ def main():
     test_features = torch.stack([bag_of_words(ex.words, vocab) for ex in test_examples])
     test_labels = torch.tensor([ex.label for ex in test_examples], dtype=torch.float32)
 
+    print(train_features)
+    print(train_labels)
+
     # Evaluate Naive Bayes model
+    print("Training test Naive Bayes...")
     nb_predictions = [nb_model.predict(ex) for ex in test_features]
     nb_metrics = evaluate_classification(torch.tensor(nb_predictions), test_labels)
     print("Naive Bayes Metrics:", nb_metrics)
 
     # Evaluate Logistic Regression model
+    print("Training Logistic Regression...")
     lr_predictions = lr_model.predict(test_features)
     lr_metrics = evaluate_classification(lr_predictions, test_labels)
     print("Logistic Regression Metrics:", lr_metrics)
